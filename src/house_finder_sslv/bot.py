@@ -40,7 +40,7 @@ from .scraper import Listing, scrape
 # --------------------------------------------------------------------------- #
 
 # How often to check for new adverts, in seconds.
-POLL_INTERVAL_SECONDS = 300  # 5 minutes
+POLL_INTERVAL_SECONDS = 600  # 10 minutes
 
 # Small pause between messages so a burst doesn't hit Telegram's rate limit.
 _SEND_DELAY_SECONDS = 0.2

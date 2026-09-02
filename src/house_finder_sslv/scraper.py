@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import re
 import sqlite3
+import time
 import urllib.request
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -33,10 +34,23 @@ MAX_AGE_DAYS = 3
 # Districts to watch. Keys are human-friendly names (used in messages),
 # values are the ss.lv URL slugs.
 DISTRICTS = {
+    # Pārdaugava — the Ķīpsala ↔ Vienības gatve axis.
     "Āgenskalns": "agenskalns",
     "Šampēteris-Pļeskodāle": "shampeteris-pleskodale",
     "Imanta": "imanta",
     "Torņakalns": "tornjakalns",
+    "Zasulauks": "zasulauks",
+    "Dzegužkalns": "dzeguzhkalns",
+    "Iļģuciems": "ilguciems",
+    "Ziepniekkalns": "ziepniekkalns",
+    "Bieriņi": "bierini",
+    "Zolitūde": "zolitude",
+    "Bieķēnsala": "biekensala",
+    # Centre — pricier, but well connected to both.
+    "Centrs": "centre",
+    "Ķīpsala": "kipsala",
+    "Klīversala": "kliversala",
+    "Vecrīga": "vecriga",
 }
 
 # Where the SQLite database lives (project root by default).
@@ -48,6 +62,9 @@ DB_PATH = Path(__file__).resolve().parents[2] / "listings.db"
 
 # "flats" -> rentals ("hand_over") RSS feed for a single Riga district.
 _FEED_URL = "https://www.ss.lv/lv/real-estate/flats/riga/{slug}/hand_over/rss/"
+
+# Pause between district feeds so a run doesn't hammer ss.lv with one burst.
+_FETCH_DELAY_SECONDS = 1.0
 
 _USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
@@ -187,7 +204,9 @@ def scrape(db_path: Path = DB_PATH) -> list[Listing]:
 
     with sqlite3.connect(db_path) as conn:
         _init_db(conn)
-        for name, slug in DISTRICTS.items():
+        for index, (name, slug) in enumerate(DISTRICTS.items()):
+            if index:
+                time.sleep(_FETCH_DELAY_SECONDS)
             try:
                 raw = _fetch(_FEED_URL.format(slug=slug))
             except Exception as exc:  # network/HTTP issues shouldn't kill the run

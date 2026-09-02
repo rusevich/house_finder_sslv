@@ -26,8 +26,13 @@ DISTRICTS = {              # name -> ss.lv URL slug
     "Šampēteris-Pļeskodāle": "shampeteris-pleskodale",
     "Imanta":                "imanta",
     "Torņakalns":            "tornjakalns",
+    ...                      # 15 districts in total
 }
 ```
+
+Slugs come from the region list on ss.lv's rentals page
+(<https://www.ss.lv/lv/real-estate/flats/riga/hand_over/>) — a wrong slug just
+prints a `[warn] failed to fetch` line and is skipped.
 
 ## Setup
 
